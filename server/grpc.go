@@ -4,7 +4,7 @@ import (
 	"fmt"
 	gRPC "google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	v1 "grpc-location/proto/gen"
+	v1 "grpc-location/proto/gen/go"
 	"grpc-location/server/interceptor"
 	"grpc-location/server/services"
 	"log/slog"
@@ -26,7 +26,9 @@ func (s *Server) Start(address string) error {
 	rpcLogger := gRPC.UnaryInterceptor(interceptor.GrpcUnaryLogger(s.log))
 	s.grpcServer = gRPC.NewServer(rpcLogger)
 	reflection.Register(s.grpcServer)
-	v1.RegisterGreeterServer(s.grpcServer, services.NewGreeter())
+	//v1.RegisterGreeterServer(s.grpcServer, services.NewGreeter())
+	v1.RegisterChatServiceServer(s.grpcServer, services.NewChat())
+	v1.RegisterLocationServiceServer(s.grpcServer, services.NewCarLocationService())
 
 	listener, err := net.Listen("tcp", address)
 	if err != nil {

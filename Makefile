@@ -9,11 +9,11 @@ clean:
 	go clean -testcache
 	go clean -modcache
 generate:
-	rm -rf ${PROTO_OUTPUT_PATH}/*.go
+	rm -rf ${PROTO_OUTPUT_PATH}/go/*.go
 	protoc --proto_path=${PROTO_PATH} \
-	--go_out=${PROTO_OUTPUT_PATH} \
+	--go_out=${PROTO_OUTPUT_PATH}/go \
 	--go_opt=paths=source_relative \
-	--go-grpc_out=${PROTO_OUTPUT_PATH} \
+	--go-grpc_out=${PROTO_OUTPUT_PATH}/go \
 	--go-grpc_opt=paths=source_relative \
 	${PROTO_PATH}/*.proto
 

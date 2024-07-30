@@ -2,7 +2,9 @@ package services
 
 import (
 	"context"
-	pb "grpc-location/proto/gen"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	pb "grpc-location/proto/gen/go"
 	"log"
 )
 
@@ -20,7 +22,14 @@ func (s *GreeterRPCService) SayHello(ctx context.Context, in *pb.HelloRequest) (
 	return &pb.HelloReply{Message: "Hello " + in.GetName()}, nil
 }
 
-// SayHelloAgain implements GreeterServer
-func (s *GreeterRPCService) SayHelloAgain(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
-	return &pb.HelloReply{Message: "Hello again " + in.GetName()}, nil
+func (s *GreeterRPCService) LotsOfReplies(req *pb.HelloRequest, stream *pb.Greeter_LotsOfRepliesServer) error {
+	return status.Errorf(codes.Unimplemented, "method LotsOfReplies not implemented")
+}
+
+func (s *GreeterRPCService) LotsOfGreetings(stream pb.Greeter_LotsOfGreetingsServer) error {
+	return status.Errorf(codes.Unimplemented, "method LotsOfGreetings not implemented")
+}
+
+func (s *GreeterRPCService) BidiHello(stream pb.Greeter_BidiHelloServer) error {
+	return status.Errorf(codes.Unimplemented, "method BidiHello not implemented")
 }
