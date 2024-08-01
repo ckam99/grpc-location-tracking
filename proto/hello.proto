@@ -4,11 +4,37 @@ package proto;
 
 option go_package = "grpc-location/v1/";
 
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Hello world API";
+    version: "1.0.0";
+    contact: {
+      name: "Tech School";
+      url: "https://github.com/ckam99/golang";
+      email: "ckam225@gmail.com";
+    };
+  };
+};
+
 // The greeting service definition.
 service Greeter {
   // Unary RPCs where the client sends a single request to the server and gets a single response back,
   // just like a normal function call.
-  rpc SayHello (HelloRequest) returns (HelloReply) {}
+  rpc SayHello (HelloRequest) returns (HelloReply) {
+    option (google.api.http) = {
+      post: "/v1/example/echo"
+      body: "*"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to create a new user";
+      summary: "Create new user";
+    };
+  }
 
   // Server streaming RPCs where the client sends a request to the server and gets a stream to read a sequence of messages back.
   // The client reads from the returned stream until there are no more messages.
