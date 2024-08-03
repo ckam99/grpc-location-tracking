@@ -20,5 +20,7 @@ message CarLocationRequest {
 
 service LocationService {
   rpc SubmitCarLocation(stream CarLocation) returns (google.protobuf.Empty){}
-  rpc GetCarLocations(google.protobuf.Empty) returns (stream CarLocation){}
+  rpc SubmitLocation(CarLocation) returns (google.protobuf.Empty){}
+  rpc GetAllCarLocation(google.protobuf.Empty) returns (stream CarLocation){}
+  rpc GetCarLocation(CarLocationRequest) returns (stream CarLocation){}
 }

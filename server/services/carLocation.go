@@ -1,76 +1,124 @@
 package services
 
 import (
+	"context"
+	"fmt"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	pb "grpc-location/proto/gen/go"
-	"io"
+	"log"
 	"sync"
 )
 
 type CarLocationService struct {
 	pb.UnimplementedLocationServiceServer
-
-	mu           sync.Mutex
-	carLocations map[string][]*pb.CarLocation
+	mu                    sync.Mutex
+	carLocations          map[string]*pb.CarLocation
+	locationChannel       chan *pb.CarLocation
+	singleLocationChannel chan *pb.CarLocation
+	quit                  chan struct{}
 }
 
 func NewCarLocationService() *CarLocationService {
 	return &CarLocationService{
-		carLocations: make(map[string][]*pb.CarLocation),
+		carLocations: map[string]*pb.CarLocation{
+			"967": {CarId: "967", Longitude: 0.0, Latitude: 0.0},
+			"895": {CarId: "895", Longitude: 0.0, Latitude: 0.0},
+			"288": {CarId: "288", Longitude: 0.0, Latitude: 0.0},
+			"636": {CarId: "636", Longitude: 0.0, Latitude: 0.0},
+		},
+		locationChannel:       make(chan *pb.CarLocation),
+		singleLocationChannel: make(chan *pb.CarLocation),
+		quit:                  make(chan struct{}),
 	}
 }
 
-func (s *CarLocationService) SubmitCarLocation(stream pb.LocationService_SubmitCarLocationServer) error {
-	for {
-		carLocation, err := stream.Recv()
-		if err == io.EOF {
-			// End of the stream
-			return nil
-		}
-		if err != nil {
-			return err
-		}
+func (s *CarLocationService) SubmitCarLocation(stream grpc.ClientStreamingServer[pb.CarLocation, emptypb.Empty]) error {
+	return status.Errorf(codes.Unimplemented, "method SubmitLocation not implemented")
+}
 
+func (s *CarLocationService) SubmitLocation(ctx context.Context, car *pb.CarLocation) (*emptypb.Empty, error) {
+	if _, err := s.findCarLocation(car.CarId); err != nil {
+		return nil, err
+	}
+	go func() {
 		s.mu.Lock()
-		s.carLocations[carLocation.CarId] = append(s.carLocations[carLocation.CarId], carLocation)
+		s.locationChannel <- car
+		s.singleLocationChannel <- car
+		s.carLocations[car.CarId] = car
 		s.mu.Unlock()
-	}
+	}()
+	return &emptypb.Empty{}, nil
 }
 
-//func (s *CarLocationService) GetCarLocations(ctx context.Context, _ *emptypb.Empty) (pb.LocationService_GetCarLocationsServer, error) {
-//
-//	stream, err := grpc.NewServerStream(ctx, &pb.LocationService_GetCarLocationsServer{})
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	s.mu.Lock()
-//	defer s.mu.Unlock()
-//
-//	for _, locations := range s.carLocations {
-//		for _, location := range locations {
-//			if err := stream.Send(location); err != nil {
-//				return nil, err
-//			}
-//		}
-//	}
-//
-//	return stream, nil
-//}
-
-func (s *CarLocationService) GetCarLocations(q *emptypb.Empty, stream pb.LocationService_GetCarLocationsServer) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	for _, locations := range s.carLocations {
-		for _, location := range locations {
-			if err := stream.Send(location); err != nil {
-				return err
+func (s *CarLocationService) GetAllCarLocation(_ *emptypb.Empty, stream grpc.ServerStreamingServer[pb.CarLocation]) error {
+	for _, car := range s.carLocations {
+		if car.Longitude > 0 {
+			if err := stream.Send(car); err != nil {
+				log.Printf("Failed to send car location: %v\n", err)
 			}
 		}
 	}
+	for {
+		select {
+		case car := <-s.locationChannel:
+			if err := stream.Send(car); err != nil {
+				log.Printf("Failed to send car location: %v\n", err)
+			}
+		case <-s.quit:
+			close(s.locationChannel)
+			return nil
+		}
+		//car, ok := <-s.locationChannel
+		//if !ok {
+		//	return status.Errorf(codes.Unavailable, "service unavailable")
+		//}
+		//if err := stream.Send(car); err != nil {
+		//	log.Printf("Failed to send car location: %v\n", err)
+		//}
+	}
+}
 
-	return nil
+func (s *CarLocationService) GetCarLocation(req *pb.CarLocationRequest, stream grpc.ServerStreamingServer[pb.CarLocation]) error {
+	log.Println("CarLocationRequest:", req)
+	if _, err := s.findCarLocation(req.CarId); err != nil {
+		return err
+	}
+	for {
+		select {
+		case car := <-s.singleLocationChannel:
+			if car.CarId == req.CarId {
+				if err := stream.Send(car); err != nil {
+					log.Printf("Failed to send car location: %v\n", err)
+				}
+			}
+		case <-s.quit:
+			close(s.singleLocationChannel)
+			return nil
+		}
+
+		//car, ok := <-s.locationChannel
+		//if !ok {
+		//	return status.Errorf(codes.Unavailable, "service unavailable")
+		//}
+		//if car.CarId == req.CarId {
+		//	if err := stream.Send(car); err != nil {
+		//		log.Printf("Failed to send car location: %v\n", err)
+		//	}
+		//}
+	}
+}
+
+func (s *CarLocationService) findCarLocation(carId string) (*pb.CarLocation, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	car, ok := s.carLocations[carId]
+	if !ok {
+		return nil, status.Errorf(codes.Unavailable, fmt.Sprintf("car location not found : %s", carId))
+	}
+	return car, nil
 }
 
 // https://github.com/grpc/grpc-go/blob/master/examples/route_guide/server/server.go

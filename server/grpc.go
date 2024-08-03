@@ -27,7 +27,7 @@ func (s *Server) Start(address string) error {
 	s.grpcServer = gRPC.NewServer(rpcLogger)
 	reflection.Register(s.grpcServer)
 	//v1.RegisterGreeterServer(s.grpcServer, services.NewGreeter())
-	v1.RegisterChatServiceServer(s.grpcServer, services.NewChat())
+	//v1.RegisterChatServiceServer(s.grpcServer, services.NewChat())
 	v1.RegisterLocationServiceServer(s.grpcServer, services.NewCarLocationService())
 
 	listener, err := net.Listen("tcp", address)
