@@ -28,7 +28,8 @@ func (s *Server) Start(address string) error {
 	reflection.Register(s.grpcServer)
 	//v1.RegisterGreeterServer(s.grpcServer, services.NewGreeter())
 	//v1.RegisterChatServiceServer(s.grpcServer, services.NewChat())
-	v1.RegisterLocationServiceServer(s.grpcServer, services.NewCarLocationService())
+	//v1.RegisterLocationServiceServer(s.grpcServer, services.NewCarLocationService())
+	v1.RegisterLocationServiceServer(s.grpcServer, services.NewCarLocationService2())
 
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
