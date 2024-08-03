@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/emptypb"
 	pb "grpc-location/proto/gen/go"
 	"log"
 	"time"
@@ -19,8 +18,8 @@ func main() {
 
 	// Submit car locations
 	carLocations := []*pb.CarLocation{
-		{CarId: "car1", Longitude: 10.0, Latitude: 20.0, Timestamp: uint64(time.Now().Unix())},
-		{CarId: "car1", Longitude: 11.0, Latitude: 21.0, Timestamp: uint64(time.Now().Unix())},
+		{CarId: "117k", Longitude: 10.0, Latitude: 20.0, Timestamp: uint64(time.Now().Unix())},
+		{CarId: "1170", Longitude: 11.0, Latitude: 21.0, Timestamp: uint64(time.Now().Unix())},
 	}
 
 	stream, err := c.SubmitCarLocation(context.Background())
@@ -40,7 +39,7 @@ func main() {
 	}
 
 	// Get car locations
-	resStream, err := c.GetCarLocations(context.Background(), &emptypb.Empty{})
+	resStream, err := c.GetCarLocation(context.Background(), &pb.CarLocationRequest{CarId: "636"})
 	if err != nil {
 		log.Fatalf("could not get car locations: %v", err)
 	}
