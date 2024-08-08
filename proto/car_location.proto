@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package proto;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "grpc-location/v1/";
+
+message CarLocation {
+  string carId = 1;
+  double longitude = 2;
+  double latitude = 3;
+  uint64 timestamp = 4;
+}
+
+message CarLocationRequest {
+  string carId = 1;
+}
+
+service LocationService {
+  rpc SubmitCarLocation(stream CarLocation) returns (google.protobuf.Empty){}
+  rpc SubmitLocation(CarLocation) returns (google.protobuf.Empty){}
+  rpc GetAllCarLocation(google.protobuf.Empty) returns (stream CarLocation){}
+  rpc GetCarLocation(CarLocationRequest) returns (stream CarLocation){}
+}
