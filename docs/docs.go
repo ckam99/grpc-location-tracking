@@ -31,7 +31,7 @@ var swaggerUI = `<!DOCTYPE html>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.14.1/swagger-ui-standalone-preset.min.js"></script>
     <script>
         const ui = SwaggerUIBundle({
-            url: "/swagger/swagger.json", // Replace with your Swagger API URL
+            url: "/swagger/apidocs.swagger.json", // Replace with your Swagger API URL
             dom_id: '#swagger-ui',
             presets: [
                 SwaggerUIBundle.presets.apis,

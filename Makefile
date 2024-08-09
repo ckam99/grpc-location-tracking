@@ -19,7 +19,7 @@ generate:
 	--go-grpc_opt=paths=source_relative \
 	--grpc-gateway_out ${PROTO_OUTPUT_PATH}/go --grpc-gateway_opt paths=source_relative \
 	--openapiv2_out=${SWAGGER_DOC_DIR} \
-	--openapiv2_opt=allow_merge=true,merge_file_name=text_grpc_app \
+	--openapiv2_opt=allow_merge=true,merge_file_name=apidocs \
 	${PROTO_PATH}/*.proto
 
 .PHONY: install clean generate

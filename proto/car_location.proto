@@ -5,7 +5,23 @@ package proto;
 //import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+
 option go_package = "grpc-location/v1/";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Hello world API";
+    version: "1.0.0";
+    contact: {
+      name: "Tech School";
+      url: "https://github.com/ckam99/golang";
+      email: "ckam225@gmail.com";
+    };
+  };
+};
 
 message CarLocation {
   string carId = 1;
@@ -20,7 +36,26 @@ message CarLocationRequest {
 
 service LocationService {
   rpc SubmitCarLocation(stream CarLocation) returns (google.protobuf.Empty){}
-  rpc SubmitLocation(CarLocation) returns (google.protobuf.Empty){}
-  rpc GetAllCarLocation(google.protobuf.Empty) returns (stream CarLocation){}
-  rpc GetCarLocation(CarLocationRequest) returns (stream CarLocation){}
+  rpc SubmitLocation(CarLocation) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      post: "/submit"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Use this API to submit new car location";
+      summary: "Submit car location";
+    };
+  }
+  rpc GetAllCarLocation(google.protobuf.Empty) returns (stream CarLocation){
+    option (google.api.http) = {
+      post: "/get-car-locations"
+      body: "*"
+    };
+  }
+  rpc GetCarLocation(CarLocationRequest) returns (stream CarLocation){
+    option (google.api.http) = {
+      post: "/get-car-location"
+      body: "*"
+    };
+  }
 }
