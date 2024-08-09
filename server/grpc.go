@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/tmc/grpc-websocket-proxy/wsproxy"
 	gRPC "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
@@ -76,7 +77,7 @@ func runGateway(addr string, log *slog.Logger) error {
 
 	fs := http.FileServer(http.Dir(filepath.Join("./", "docs/swagger")))
 	mux.Handle("/swagger/", http.StripPrefix("/swagger/", fs))
-	mux.Handle("/", rmux)
+	mux.Handle("/", wsproxy.WebsocketProxy(rmux))
 	mux.Handle("/docs/swagger", docs.SwaggerHandler)
 
 	log.Info(fmt.Sprintf("server listening at %v", "http://0.0.0.0:8081"))

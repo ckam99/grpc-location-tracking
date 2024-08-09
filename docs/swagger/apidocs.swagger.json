@@ -14,9 +14,6 @@
       "name": "LocationService"
     },
     {
-      "name": "ChatService"
-    },
-    {
       "name": "Greeter"
     }
   ],
@@ -28,7 +25,7 @@
   ],
   "paths": {
     "/get-car-location": {
-      "post": {
+      "get": {
         "operationId": "LocationService_GetCarLocation",
         "responses": {
           "200": {
@@ -55,12 +52,10 @@
         },
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/protoCarLocationRequest"
-            }
+            "name": "carId",
+            "in": "query",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -69,7 +64,7 @@
       }
     },
     "/get-car-locations": {
-      "post": {
+      "get": {
         "operationId": "LocationService_GetAllCarLocation",
         "responses": {
           "200": {
@@ -94,17 +89,6 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {}
-            }
-          }
-        ],
         "tags": [
           "LocationService"
         ]
@@ -201,26 +185,6 @@
           "format": "uint64"
         }
       }
-    },
-    "protoCarLocationRequest": {
-      "type": "object",
-      "properties": {
-        "carId": {
-          "type": "string"
-        }
-      }
-    },
-    "protoChatMessage": {
-      "type": "object",
-      "properties": {
-        "user": {
-          "type": "string"
-        },
-        "message": {
-          "type": "string"
-        }
-      },
-      "title": "The message format"
     },
     "protoHelloReply": {
       "type": "object",

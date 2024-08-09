@@ -48,14 +48,13 @@ service LocationService {
   }
   rpc GetAllCarLocation(google.protobuf.Empty) returns (stream CarLocation){
     option (google.api.http) = {
-      post: "/get-car-locations"
-      body: "*"
+      get: "/get-car-locations"
     };
   }
   rpc GetCarLocation(CarLocationRequest) returns (stream CarLocation){
     option (google.api.http) = {
-      post: "/get-car-location"
-      body: "*"
+      get: "/get-car-location"
+//      body: "*"
     };
   }
 }
